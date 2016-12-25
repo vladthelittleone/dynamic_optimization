@@ -55,6 +55,9 @@ console.log(output.drawHeaderOfResultTable());
 // Начальный индекс R для таблички.
 sort.forEach(function (e, index) {
 
+	var eStr = '';
+	var cStr = '';
+
 	var listIndexE = [];
 	e.states.forEach(function (e) {
 		listIndexE.push(e.num);
@@ -78,7 +81,7 @@ sort.forEach(function (e, index) {
 console.log(output.drawEndOfResultTable());
 console.log(output.endDocument());
 
-function sortByStatesLength (resultArray) {
+function sortByStatesLength(resultArray) {
 
 	// Сортируем в соответствии с мощностью множеств состояний.
 	return lodash.sortBy(resultArray, function (R) {
@@ -89,7 +92,7 @@ function sortByStatesLength (resultArray) {
 
 }
 
-function generateImages (map, R, checkSize) {
+function generateImages(map, R, checkSize) {
 
 	var images = [];
 
@@ -117,7 +120,7 @@ function generateImages (map, R, checkSize) {
 	});
 }
 
-function convert (E) {
+function convert(E) {
 
 	var checksCount = E[0].length;
 	var result = R();
@@ -125,7 +128,7 @@ function convert (E) {
 	E.forEach(function (Ei, n) {
 
 		result.states.push({
-							   num: n,
+							   num:    n,
 							   errors: Ei
 						   });
 
@@ -136,7 +139,7 @@ function convert (E) {
 	return result;
 }
 
-function generatePermissibleChecks (R, checksCount) {
+function generatePermissibleChecks(R, checksCount) {
 
 	for (var i = 0; i < checksCount; i++) {
 
@@ -171,7 +174,7 @@ function generatePermissibleChecks (R, checksCount) {
 
 }
 
-function generateNewImage (Rk, i) {
+function generateNewImage(Rk, i) {
 
 	var Rp = R();
 	var Rn = R();
@@ -181,12 +184,14 @@ function generateNewImage (Rk, i) {
 		if (Ei.errors[i] === -1) {
 
 			Rn.states.push(Ei);
+			Rn.k = Ei.num;
 
 		}
 
 		if (Ei.errors[i] === 1) {
 
 			Rp.states.push(Ei);
+			Rp.k = Ei.num;
 
 		}
 
@@ -195,7 +200,7 @@ function generateNewImage (Rk, i) {
 	return {Rp: Rp, Rn: Rn};
 }
 
-function newImages (Rk, i, checksSize) {
+function newImages(Rk, i, checksSize) {
 
 	var newImages = generateNewImage(Rk, i);
 
@@ -213,7 +218,7 @@ function newImages (Rk, i, checksSize) {
 	}
 }
 
-function R () {
+function R() {
 
 	var t = {};
 
@@ -224,7 +229,7 @@ function R () {
 
 }
 
-function optionHash (states) {
+function optionHash(states) {
 
 	var hash = '';
 
@@ -237,7 +242,7 @@ function optionHash (states) {
 	return hash;
 }
 
-function propagate (e, optimumsMap, optimumsChain) {
+function propagate(e, optimumsMap, optimumsChain) {
 
 	var optimum = 0;
 	var hash = optionHash(e.states);
@@ -272,7 +277,7 @@ function propagate (e, optimumsMap, optimumsChain) {
 
 }
 
-function getOptimumsForChain (e, c) {
+function getOptimumsForChain(e, c) {
 
 	var optimumsMap = new Map();
 	var optimumsChain = new Set();
@@ -288,11 +293,22 @@ function getOptimumsForChain (e, c) {
 	propagate(Rn, optimumsMap, new Set(optimumsChain));
 	propagate(Rp, optimumsMap, new Set(optimumsChain));
 
+	console.log(output.efficientOfCheck(c + 1,
+										false,
+										e.k,
+										"",
+										Rp.states.map(function(o){return o.num;})));
+	console.log(output.efficientOfCheck(c + 1,
+										true,
+										e.k,
+										"",
+										Rn.states.map(function(o){return o.num;})));
+
 	return optimumsMap;
 
 }
 
-function conditionalProbabilities (states, optimums, currentCheck, k) {
+function conditionalProbabilities(states, optimums, currentCheck, k) {
 
 	var probabilitiesMap = new Map();
 
@@ -328,7 +344,7 @@ function conditionalProbabilities (states, optimums, currentCheck, k) {
 				validProbabilities = PROBABILITIES[state2.num] * mGamma;
 
 				argumetsForValidProbabilty = {
-					first: PROBABILITIES[state2.num],
+					first:  PROBABILITIES[state2.num],
 					second: mGamma
 				};
 
@@ -340,8 +356,8 @@ function conditionalProbabilities (states, optimums, currentCheck, k) {
 			allProbabilities.push(PROBABILITIES[state2.num] * mGamma);
 
 			argumentsForAllProbabilities.push({
-												  first: PROBABILITIES[state2.num],
-												  second: mGamma,
+												  first:    PROBABILITIES[state2.num],
+												  second:   mGamma,
 												  stateNum: state2.num
 											  });
 
@@ -367,7 +383,7 @@ function conditionalProbabilities (states, optimums, currentCheck, k) {
 
 }
 
-function probabilitiesSum (states) {
+function probabilitiesSum(states) {
 
 	var sum = 0;
 
@@ -380,14 +396,14 @@ function probabilitiesSum (states) {
 	return sum;
 }
 
-function probabilitiesWithStates (states) {
+function probabilitiesWithStates(states) {
 
 	var arr = [];
 
 	states.forEach(function (state) {
 
 		var obj = {
-			stateNum: state.num,
+			stateNum:    state.num,
 			probability: PROBABILITIES[state.num]
 		};
 
@@ -397,7 +413,7 @@ function probabilitiesWithStates (states) {
 	return arr;
 }
 
-function optimum (e) {
+function optimum(e) {
 
 	// Все доступные проверки для текущего
 	// Ri
@@ -435,16 +451,22 @@ function optimum (e) {
 			var bayes = probabilitiesMap.get(state.num);
 
 			bayesValues.push({
-								 state: state.num,
-								 first: clarify,
+								 state:  state.num,
+								 first:  clarify,
 								 second: bayes
 							 });
 
 			D = D + (clarify * bayes);
+
+			// 	var stateProbability = PROBABILITIES[state.num];
+			// 	var clarify = clarifyProbability(stateProbability, sum);
+			// 	var bayes = probabilitiesMap.get(state.num);
+			//
+			// 	D = D + (clarify * bayes);
 		});
 
 		console.log(output.D(e.k,
-							 c,
+							 c + 1,
 							 D,
 							 bayesValues.map(function (a) {
 								 return {first: a.first, second: a.second};
@@ -453,12 +475,14 @@ function optimum (e) {
 								 return a.state;
 							 })));
 
+
 		efficiencyOfChecks.push({
 									check: c,
-									D: D
+									D:     D
 								});
 
 	});
+
 
 	// Находим наиличшую эффективность.
 	var bestEfficiency = lodash.maxBy(efficiencyOfChecks, function (o) {
@@ -478,7 +502,7 @@ function optimum (e) {
  *
  * @param array
  */
-function generateTableOfOptimums (array) {
+function generateTableOfOptimums(array) {
 
 	// Проходим по всем данным.
 	array.forEach(function (e) {
@@ -492,7 +516,7 @@ function generateTableOfOptimums (array) {
 /**
  * Формула №28 по методическим указаниям.
  */
-function multiplyGamma (i, f, optimums, currentCheck, k) {
+function multiplyGamma(i, f, optimums, currentCheck, k) {
 
 	var multiply = 1;
 
@@ -521,9 +545,9 @@ function multiplyGamma (i, f, optimums, currentCheck, k) {
 
 		j++;
 	});
-
+	
 	str = str.concat(output.multiplyOfArgumets(resultsOfGamma));
-
+	
 	str = str.concat(util.format("=%d\\]", multiply.toFixed(output.PRECISION)));
 
 	console.log(str);
@@ -535,17 +559,18 @@ function multiplyGamma (i, f, optimums, currentCheck, k) {
 /**
  * Формула №25 по методическим указаниям.
  */
-function clarifyProbability (probabilityOfCurrentState,
-							 probabilitiesForClarify) {
+function clarifyProbability(probabilityOfCurrentState,
+							probabilitiesForClarify) {
 
 	return probabilityOfCurrentState / probabilitiesForClarify;
 
 }
 
+
 /**
  * Формула №29 по методическим указаниям.
  */
-function gamma (i, j, f) {
+function gamma(i, j, f) {
 
 	var Eij = E[i][j];
 	var Efj = E[f][j];
@@ -556,12 +581,12 @@ function gamma (i, j, f) {
 		// если Если eij == efj == 1 -> (1 - alpha(j)) (alpha - ошибка первого рода)
 		// если Если eij == efj == -1 -> (1 - betta(j)) (betta - ошибка второго рода)
 		return lodash.isEqual(Eij, 1) ? 1 - ERROR1[j] :
-		1 - ERROR2[j];
+			   1 - ERROR2[j];
 
 	}
 
 	// если eij == -1 И efj == 1 -> alpha(j)
 	// если eij == 1 И efj == -1 -> betta(j)
 	return lodash.isEqual(Eij, -1) && lodash.isEqual(Efj, 1) ? ERROR1[j] :
-		ERROR2[j];
+		   ERROR2[j];
 }

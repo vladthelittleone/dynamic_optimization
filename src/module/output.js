@@ -9,15 +9,13 @@ var lodash = require('lodash');
 
 var config = require('./../config.json');
 
-var ERROR1 = config['error1'];
-var ERROR2 = config['error2'];
 var E = config['E'];
 
-function output(fileName) {
+function output() {
 
 	var that = {};
 
-	var PRECISION = 2;
+	var PRECISION = 5;
 
 	that.drawHeaderOfResultTable = drawHeaderOfResultTable;
 	that.insertIntoResultTable = insertIntoResultTable;
@@ -28,6 +26,7 @@ function output(fileName) {
 	that.validProbability = validProbability;
 	that.clarifyProbability = clarifyProbability;
 	that.D = D;
+	that.efficientOfCheck = efficientOfCheck;
 
 	that.PRECISION = PRECISION;
 
@@ -125,16 +124,16 @@ function output(fileName) {
 
 		var p = negativeFlag === true ? -1 : 1;
 
-		var str = "\\noindent $\\pi _{%d}^{1} $:";
-		str = str.concat(generateListOf(listIndexOfE));
-		str = str.concat(util.format("\\noindent $\\pi _{%d}^{%d} $:\\textit{R}${}_{%d}$\\textit{$\to$} \\textit{R}${}_{%d}$=$\\{$",
-									 indexOfCheck,
-									 p,
-									 indexOfCurrentR,
-									 indexOfPreviousR));
+		// \noindent $\pi _{5}^{1} $:\textit{R}${}_{17}$\textit{$\to$} \textit{R}${}_{6}$=$\{$\textbf{E}${}_{6}$$\}$,
+		// \noindent $\pi _{4}^{1} $:\textit{R}${}_{6}$\textit{$	o$} \textit{R}${}_{0}$=$\{$\textbf{ E}${}_{0}$$}$
+		var str = util.format("\\noindent $\\pi _{%d}^{%d} $:\\textit{R}${}_{%d}$\\textit{$\\to$} \\textit{R}${}_{%d}$=$\\{$",
+							  indexOfCheck,
+							  p,
+							  indexOfCurrentR,
+							  indexOfPreviousR);
 		str = str.concat(generateListOf(listIndexOfE));
 
-		str = str.concat("$$\}$");
+		str = str.concat("$$\\}$");
 
 		return str;
 	}
@@ -204,6 +203,7 @@ function output(fileName) {
 	
 	/**
 	 * Олег
+	 * ПУНКТ 3
 	 * @param numerator числитель объект с двумя полями
 	 * numerator.first и numerator.second
 	 * @param i индекс для P
@@ -218,8 +218,8 @@ function output(fileName) {
 			return a.stateNum;
 		});
 
-		var resultString = "\\[{\\rm P}_{INDEX_K} \\left(R_{INDEX_I} /R_{INDEX_I}^{} (\\pi _{INDEX_J} )\\right)=" +
-						   "\\frac{{\\rm P}(R_{INDEX_I} ){\\rm P}_{INDEX_K} \\left(R_{INDEX_I}^{} (\\pi {INDEX_J} )/R_{INDEX_I} \\right)}" +
+		var resultString = "\\[{\\rm P}_{INDEX_K} \\left(R_{INDEX_I} /R_{INDEX_I}^{*} (\\pi _{INDEX_J} )\\right)=" +
+						   "\\frac{{\\rm P}(R_{INDEX_I} ){\\rm P}_{INDEX_K} \\left(R_{INDEX_I}^{*} (\\pi _{INDEX_J} )/R_{INDEX_I} \\right)}" +
 						   "{SUM} =\\]" +
 						   "\\[~=~\\frac{NUMERATOR_FIRST \\cdot NUMERATOR_SECOND}{DENOMINATOR} =RESULT.\\]";
 		// ЗАМЕНА В ФОРМУЛУ В ОБЩЕМ ВИДЕ
@@ -261,6 +261,7 @@ function output(fileName) {
 
 	/**
 	 * Олег
+	 * ПУНКТ 4
 	 * @param numerator числитель
 	 * @param denominators знаминатель, массив чисел
 	 * @param k индекс для P
@@ -279,16 +280,21 @@ function output(fileName) {
 		});
 
 		var resultString = '\\[P_{INDEX_K}(E_{INDEX_I}) = \\frac{P(E_{INDEX_I})}{SUM} = \\frac{NUMERATOR}{DENOMINATOR} = RESULT\\]';
+
 		resultString = resultString.replace('RESULT', result.toFixed(PRECISION));
 		resultString = resultString.replace(/INDEX_I/g, i);
 		resultString = resultString.replace(/INDEX_K/g, k);
 		resultString = resultString.replace('NUMERATOR', numerator.toFixed(PRECISION));
 		resultString = resultString.replace('SUM', createSumP4(listOfIndex));
+
 		var denominatorResult = "";
+
 		denominators.forEach(function (value) {
 			denominatorResult += value.toFixed(PRECISION) + "+"
 		});
+
 		resultString = resultString.replace('DENOMINATOR', denominatorResult.substring(0, denominatorResult.length - 1));
+
 		return resultString;
 	}
 
@@ -310,6 +316,10 @@ function output(fileName) {
 		return resultString.substring(0, resultString.length - 1);
 	}
 
+	// ПУНКТ 5
+	/**
+	 * @return {string}
+	 */
 	function D(k, j, result, calcValues, listOfIndex) {
 
 		var resultString = '\\[ D_{INDEX_K}(\\pi_{INDEX_J})~=~SUM~=~CALC~=~RESULT\\]';
@@ -327,8 +337,6 @@ function output(fileName) {
 
 		resultString = resultString.replace('CALC', calcResult.substring(0, calcResult.length - 1));
 
-		return resultString
+		return resultString;
 	}
-
-	// console.log(createCalcExempleP5(5,4, 5,[numerator, numerator, numerator], [1,2,8]));
 }
