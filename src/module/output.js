@@ -38,9 +38,9 @@ function output() {
 	function beginDocument() {
 
 		var str = "\\documentclass{article} \\usepackage[english]{babel} \\usepackage{amssymb} " +
-				  "\\usepackage{amsmath} \\usepackage{txfonts} \\usepackage{mathdots} " +
-				  "\\usepackage[classicReIm]{kpfonts} \\usepackage[pdftex]{graphicx} " +
-				  "\\begin{document} ";
+			"\\usepackage{amsmath} \\usepackage{txfonts} \\usepackage{mathdots} " +
+			"\\usepackage[classicReIm]{kpfonts} \\usepackage[pdftex]{graphicx} " +
+			"\\begin{document} ";
 
 		return str;
 	}
@@ -48,11 +48,11 @@ function output() {
 	function drawHeaderOfResultTable() {
 
 		var str = "\\begin{tabular}{|p{0.3in}|p{1.5in}|p{1.5in}|p{0.6in}|p{0.6in}|} \\hline " +
-				  "№ пп & Информационные состояния \\textit{R${}_{k}$} & Множества $\\Pi$\\textit{${}_{k }$}" +
-				  "допустимых проверок в состояниях \\textit{R${}_{k}$} & \\multicolumn{2}{|p{1.2in}|}" +
-				  "{Результаты расчетов } \\\\ \\hline &  &  & Оптимальная проверка $\\piup$\\textit{${}_{j}$} " +
-				  "& \\textit{D}(\\textit{R${}_{k}$}) \\\\" +
-				  "\\hline 1 & 2 & 3 & 4 & 5 \\\\";
+			"№ пп & Информационные состояния \\textit{R${}_{k}$} & Множества $\\Pi$\\textit{${}_{k }$}" +
+			"допустимых проверок в состояниях \\textit{R${}_{k}$} & \\multicolumn{2}{|p{1.2in}|}" +
+			"{Результаты расчетов } \\\\ \\hline &  &  & Оптимальная проверка $\\piup$\\textit{${}_{j}$} " +
+			"& \\textit{D}(\\textit{R${}_{k}$}) \\\\" +
+			"\\hline 1 & 2 & 3 & 4 & 5 \\\\";
 
 		return str;
 	}
@@ -154,22 +154,20 @@ function output() {
 		var Eij = E[i][j];
 		var Efj = E[f][j];
 
-		j = j + 1;
-
 		// Если eij == efj
 		if (lodash.isEqual(Eij, Efj)) {
 
 			// если Если eij == efj == 1 -> (1 - alpha(j)) (alpha - ошибка первого рода)
 			// если Если eij == efj == -1 -> (1 - betta(j)) (betta - ошибка второго рода)
 			return lodash.isEqual(Eij, 1) ? util.format("(1-\\alpha _{%d})", j + 1) :
-				   util.format("(1-\\beta _{%d})", j + 1);
+				util.format("(1-\\beta _{%d})", j + 1);
 
 		}
 
 		// если eij == -1 И efj == 1 -> alpha(j)
 		// если eij == 1 И efj == -1 -> betta(j)
 		return lodash.isEqual(Eij, -1) && lodash.isEqual(Efj, 1) ? util.format("(\\alpha _{%d})", j + 1) :
-			   util.format("(\\beta _{%d})", j + 1);
+			util.format("(\\beta _{%d})", j + 1);
 
 	}
 
@@ -202,7 +200,7 @@ function output() {
 		// дропаем лишний +
 		return denominatorResult.substring(0, denominatorResult.length - 1);
 	}
-	
+
 	/**
 	 * Олег
 	 * ПУНКТ 3
@@ -221,25 +219,32 @@ function output() {
 		});
 
 		var resultString = "\\[{\\rm P}_{INDEX_K} \\left(R_{INDEX_I} /R_{INDEX_I}^{*} (\\pi _{INDEX_J} )\\right)=" +
-						   "\\frac{{\\rm P}(R_{INDEX_I} ){\\rm P}_{INDEX_K} \\left(R_{INDEX_I}^{*} (\\pi _{INDEX_J} )/R_{INDEX_I} \\right)}" +
-						   "{SUM} =\\]" +
-						   "\\[~=~\\frac{NUMERATOR_FIRST \\cdot NUMERATOR_SECOND}{DENOMINATOR} =RESULT.\\]";
+			"\\frac{{\\rm P}(R_{INDEX_I} ){\\rm P}_{INDEX_K} \\left(R_{INDEX_I}^{*} (\\pi _{INDEX_J} )/R_{INDEX_I} \\right)}" +
+			"{\\sum {{\\rm P}(R_{i} ){\\rm P}_{INDEX_K} \\left(R_{i}^{*} (\\pi_{INDEX_J} )/R_{i} \\right)}} =\\]";
+
+		if ( k <13) {
+			resultString = resultString + "\\[~=~\\frac{NUMERATOR_FIRST \\cdot NUMERATOR_SECOND}{DENOMINATOR} =RESULT.\\]";
+			// ПОДСТАНОВКА В ЗНАМЕНАТЕЛЬ
+			resultString = resultString.replace('DENOMINATOR', createDenominator(denominators));
+		}
+		else {
+			resultString = resultString + "\\[~=~RESULT.\\]";
+		}
 		// ЗАМЕНА В ФОРМУЛУ В ОБЩЕМ ВИДЕ
 		resultString = resultString.replace('RESULT', result.toFixed(PRECISION));
-		resultString = resultString.replace('SUM', createSumP3(listOfIndex, k, j));
+		//resultString = resultString.replace('SUM', createSumP3(listOfIndex, k, j));
 		resultString = resultString.replace(/INDEX_I/g, i);
 		resultString = resultString.replace(/INDEX_K/g, k);
 		resultString = resultString.replace(/INDEX_J/g, j);
 		// ПОДСТАНОВКА В ЧИСЛИТЕЛЬ
 		resultString = resultString.replace('NUMERATOR_FIRST', numerator.first.toFixed(PRECISION));
 		resultString = resultString.replace('NUMERATOR_SECOND', numerator.second.toFixed(PRECISION));
-		// ПОДСТАНОВКА В ЗНАМЕНАТЕЛЬ
-		resultString = resultString.replace('DENOMINATOR', createDenominator(denominators));
+
 		return resultString;
 	}
 
 	function createSumP3(listOfIndex, k, j) {
-		var template = '{{\\rm P}(R_{INDEX_I} ){\\rm P}_{INDEX_K} \\left(R_{INDEX_I}^{*} (\\pi_{INDEX_J} )/R_{INDEX_I} \\right)}';
+		var template = '\\sum {{\\rm P}(R_{INDEX_I} ){\\rm P}_{INDEX_K} \\left(R_{INDEX_I}^{*} (\\pi_{INDEX_J} )/R_{INDEX_I} \\right)}';
 		template = template.replace(/INDEX_J/g, j);
 		template = template.replace(/INDEX_K/g, k);
 		var resultString = "";
@@ -276,12 +281,26 @@ function output() {
 		var listOfIndex = denominators.map(function (a) {
 			return a.stateNum;
 		});
-		
+
 		denominators = denominators.map(function (a) {
 			return a.probability;
 		});
 
-		var resultString = '\\[P_{INDEX_K}(E_{INDEX_I}) = \\frac{P(E_{INDEX_I})}{SUM} = \\frac{NUMERATOR}{DENOMINATOR} = RESULT\\]';
+		var resultString = '\\[P_{INDEX_K}(E_{INDEX_I}) = \\frac{P(E_{INDEX_I})}{SUM} = ';
+		if ( k < 15) {
+			resultString = resultString + '\\frac{NUMERATOR}{DENOMINATOR} = RESULT\\]';
+			var denominatorResult = "";
+
+			denominators.forEach(function (value) {
+				denominatorResult += value.toFixed(PRECISION) + "+"
+			});
+
+			resultString = resultString.replace('DENOMINATOR', denominatorResult.substring(0, denominatorResult.length - 1));
+		}
+		else {
+			resultString = resultString + 'RESULT\\]';
+
+		}
 
 		resultString = resultString.replace('RESULT', result.toFixed(PRECISION));
 		resultString = resultString.replace(/INDEX_I/g, i);
@@ -289,13 +308,6 @@ function output() {
 		resultString = resultString.replace('NUMERATOR', numerator.toFixed(PRECISION));
 		resultString = resultString.replace('SUM', createSumP4(listOfIndex));
 
-		var denominatorResult = "";
-
-		denominators.forEach(function (value) {
-			denominatorResult += value.toFixed(PRECISION) + "+"
-		});
-
-		resultString = resultString.replace('DENOMINATOR', denominatorResult.substring(0, denominatorResult.length - 1));
 
 		return resultString;
 	}
@@ -304,7 +316,7 @@ function output() {
 
 	function createSumP5(k, j, listOfIndex) {
 
-		var template = 'P_{INDEX_K}(E_{INDEX_I})P_{INDEX_K}(R_{INDEX_I}/(R^*_{INDEX_I}(\\pi_{INDEX_J}))';
+		var template = '\\sum P_{INDEX_K}(E_{INDEX_I})P_{INDEX_K}(R_{INDEX_I}/(R^*_{INDEX_I}(\\pi_{INDEX_J}))';
 
 		template = template.replace(/INDEX_K/g, k);
 		template = template.replace(/INDEX_J/g, j);
@@ -324,20 +336,30 @@ function output() {
 	 */
 	function D(k, j, result, calcValues, listOfIndex) {
 
-		var resultString = '\\[ D_{INDEX_K}(\\pi_{INDEX_J})~=~SUM~=~CALC~=~RESULT\\]';
+		var resultString = '\\[ D_{INDEX_K}(\\pi_{INDEX_J})~=';
+
+		if(k < 14) {
+
+			resultString = resultString + '~\\sum P_{INDEX_K}(E_{i})P_{INDEX_K}(R_{i}/(R^*_{i}(\\pi_{INDEX_J}))~=~CALC~=~RESULT\\]';
+			var calcResult = '';
+
+			calcValues.forEach(function (value) {
+				calcResult += value.first.toFixed(PRECISION) + ' + ' + value.second.toFixed(PRECISION) + '+';
+			});
+
+			resultString = resultString.replace('CALC', calcResult.substring(0, calcResult.length - 1));
+
+		}
+		else
+		{
+			resultString = resultString + 'RESULT\\]';
+		}
 
 		resultString = resultString.replace(/INDEX_K/g, k);
 		resultString = resultString.replace(/INDEX_J/g, j);
 		resultString = resultString.replace('RESULT', result.toFixed(PRECISION));
-		resultString = resultString.replace('SUM', createSumP5(k, j, listOfIndex));
+		//resultString = resultString.replace('SUM', createSumP5(k, j, listOfIndex));
 
-		var calcResult = '';
-
-		calcValues.forEach(function (value) {
-			calcResult += value.first.toFixed(PRECISION) + ' + ' + value.second.toFixed(PRECISION) + '+';
-		});
-
-		resultString = resultString.replace('CALC', calcResult.substring(0, calcResult.length - 1));
 
 		return resultString;
 	}
