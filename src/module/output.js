@@ -159,15 +159,15 @@ function output() {
 
 			// если Если eij == efj == 1 -> (1 - alpha(j)) (alpha - ошибка первого рода)
 			// если Если eij == efj == -1 -> (1 - betta(j)) (betta - ошибка второго рода)
-			return lodash.isEqual(Eij, 1) ? util.format("(1-\\alpha _{%d})", j) :
-				   util.format("(1-\\beta _{%d})", j);
+			return lodash.isEqual(Eij, 1) ? util.format("(1-\\alpha _{%d})", j + 1) :
+				   util.format("(1-\\beta _{%d})", j + 1);
 
 		}
 
 		// если eij == -1 И efj == 1 -> alpha(j)
 		// если eij == 1 И efj == -1 -> betta(j)
-		return lodash.isEqual(Eij, -1) && lodash.isEqual(Efj, 1) ? util.format("(\\alpha _{%d})", j) :
-			   util.format("(\\beta _{%d})", j);
+		return lodash.isEqual(Eij, -1) && lodash.isEqual(Efj, 1) ? util.format("(\\alpha _{%d})", j + 1) :
+			   util.format("(\\beta _{%d})", j + 1);
 
 	}
 

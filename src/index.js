@@ -374,7 +374,7 @@ function conditionalProbabilities(states, optimums, currentCheck, k) {
 											argumentsForAllProbabilities,
 											state1.num,
 											k,
-											state1.num,
+											currentCheck + 1,
 											probabilitiesMap.get(state1.num)));
 
 	});
@@ -522,7 +522,7 @@ function multiplyGamma(i, f, optimums, currentCheck, k) {
 
 	var str = "";
 
-	str = str.concat(output.drawBeginOfGamma(k, i, currentCheck, f));
+	str = str.concat(output.drawBeginOfGamma(k, i, currentCheck + 1, f));
 
 	var j = 0;
 
@@ -541,7 +541,7 @@ function multiplyGamma(i, f, optimums, currentCheck, k) {
 		resultsOfGamma.push(resultOfGamma);
 
 		// Отрисовываем множители выражения.
-		str = str.concat(output.gamma(i, f, optimum));
+		str = str.concat(output.gamma(i, optimum, f));
 
 		j++;
 	});
