@@ -154,6 +154,8 @@ function output() {
 		var Eij = E[i][j];
 		var Efj = E[f][j];
 
+		j = j + 1;
+
 		// Если eij == efj
 		if (lodash.isEqual(Eij, Efj)) {
 

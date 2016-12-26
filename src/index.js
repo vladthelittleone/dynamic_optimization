@@ -541,7 +541,7 @@ function multiplyGamma(i, f, optimums, currentCheck, k) {
 		resultsOfGamma.push(resultOfGamma);
 
 		// Отрисовываем множители выражения.
-		str = str.concat(output.gamma(i, f, optimum));
+		str = str.concat(output.gamma(i, optimum, f));
 
 		j++;
 	});
